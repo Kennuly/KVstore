@@ -6,19 +6,19 @@ int array_idx = 0;
 
 int kvstore_array_set(char* key, char *value)
 {
-    if(key == nullptr || value == nullptr || array_idx == KVS_ARRAY_SIZE)
+    if(key == NULL || value == NULL || array_idx == KVS_ARRAY_SIZE)
     {
         return -1;
     }
     char* kcopy = (char*)kvstore_malloc(strlen(key) + 1);
-    if(kcopy == nullptr)
+    if(kcopy == NULL)
     {
         return -1;
     }
     strcpy(kcopy, key);
 
     char* vcopy = (char*)kvstore_malloc(strlen(value) + 1);
-    if(vcopy == nullptr)
+    if(vcopy == NULL)
     {
         kvstore_free(kcopy);
         return -1;
@@ -41,5 +41,5 @@ char* kvs_array_get(char* key)
             return array_table[i].value;
         }
     }
-    return nullptr;
+    return NULL;
 }

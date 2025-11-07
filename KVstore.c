@@ -1,36 +1,38 @@
 #include "Reactor.h"
 #include "set.h"
-#include <iostream>
+#include <stdio.h>
 #include "KVstore.h"
 #include <string.h>
 #include <assert.h>
+#include "nty.h"
+#include <stdlib.h>
 
 const char *commands[] = {
-    "SET", "GET", "ADD", "MOD"};
+    "SET", "GET", "DEL", "MOD"};
 
 int KVstore_split_token(char *msg, char **tokens)
 {
-    if (msg == nullptr || tokens == nullptr)
+    if (msg == NULL || tokens == NULL)
     {
         return -1;
     }
     // 去掉 \n
     char *p = strchr(msg, '\n');
     if (p) *p = '\0';
-    
+
     int idx = 0;
     char *token = strtok(msg, " ");
-    while (token != nullptr)
+    while (token != NULL)
     {
         tokens[idx++] = token;
-        token = strtok(nullptr, " ");
+        token = strtok(NULL, " ");
     }
     return idx;
 }
 
 int kvstore_parser_protocol(Conn_item *item, char **tokens, int count)
 {
-    if (item == nullptr || tokens[0] == nullptr || count == 0)
+    if (item == NULL || tokens[0] == NULL || count == 0)
     {
         return -1;
     }
@@ -73,30 +75,36 @@ int kvstore_parser_protocol(Conn_item *item, char **tokens, int count)
     }
     break;
     case KVS_COM_DEL:
-        std::cout << "del" << std::endl;
+        //std::cout << "del" << std::endl;
+        printf("del");
         break;
     case KVS_COM_MOD:
-        std::cout << "mod" << std::endl;
+        //std::cout << "mod" << std::endl;
+        puts("mod");
         break;
     default:
-        std::cout << commands[cmd] << std::endl;
+        //std::cout << commands[cmd] << std::endl;
+        puts(commands[cmd]);
         assert(0);
     }
+    return 0;
 }
 // Set Key Value
 void KVstore_request(Conn_item *item)
 {
-    std::cout << "recv: " << item->rbuffer_ << std::endl;
+    // std::cout << "recv: " << item->rbuffer_ << std::endl;
+    printf("recv:%s", item->rbuffer_);
     char *msg = item->rbuffer_;
     char *tokens[KVSTORE_MAX_TOKENS];
     int count = KVstore_split_token(msg, tokens);
 
     for (int idx = 0; idx < count; idx++)
     {
-        std::cout << "dix:" << tokens[idx] << std::endl;
+        //std::cout << "dix:" << tokens[idx] << std::endl;
+        printf("dix:%s\n", tokens[idx]);
     }
     kvstore_parser_protocol(item, tokens, count);
-    memset(item->rbuffer_, 0, BUFFER_LEN);
+    //memset(item->rbuffer_, 0, BUFFER_LEN);
 }
 
 void *kvstore_malloc(size_t size)
@@ -110,5 +118,14 @@ void kvstore_free(void *ptr)
 
 int main()
 {
+#if (ENABLE_NETWORK_SELECT == NETWORK_EPOLL)
     epoll_entry();
+#elif (ENABLE_NETWORK_SELECT == NETWORK_NTYCO)
+    ntyco_entry();
+
+#elif (ENABLE_NETWORK_SELECT == NETWORK_IOURING)
+
+
+
+#endif
 }

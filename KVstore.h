@@ -1,10 +1,22 @@
 #ifndef __KVSTORE_H__
 #define __KVSTORE_H__
-#include "Reactor.h"  
-#include <cstddef>
+
+#include <stddef.h>
+
+struct Conn_item;   // ✅ 仅声明，不需要引入 Reactor.h
 
 #define KVSTORE_MAX_TOKENS 128
-extern const char*commands[];
+
+#define NETWORK_EPOLL   0
+#define NETWORK_NTYCO   1
+#define NETWORK_IOURING 2
+
+#define ENABLE_NETWORK_SELECT   NETWORK_NTYCO
+
+int ntyco_entry();
+
+extern const char* commands[];
+
 enum
 {
     KVS_CMD_START = 0,
@@ -15,9 +27,9 @@ enum
     KVS_COM_COUNT
 };
 
-int kvstore_parser_protocol(Conn_item *item, char** tokens, int count);
+int kvstore_parser_protocol(struct Conn_item *item, char** tokens, int count);
 
-void KVstore_request(Conn_item *item);
+void KVstore_request(struct Conn_item *item);
 int KVstore_split_token(char *msg, char **tokens);
 
 void* kvstore_malloc(size_t size);
@@ -36,7 +48,5 @@ int kvstore_array_set(char* key, char *value);
 char* kvs_array_get(char* key);
 
 #endif
-
-
 
 #endif

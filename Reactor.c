@@ -1,7 +1,7 @@
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <unistd.h>
-#include <iostream>
+#include <stdio.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include "Reactor.h"
@@ -9,10 +9,10 @@
 #include <string.h>
 #include "KVstore.h"
 int epfd = -1;
-Conn_item conlist[1024] = {0};
+struct Conn_item conlist[1024] = {0};
 void set_event(int fd, int event, int flag)
 {
-    epoll_event ev;
+    struct epoll_event ev;
     ev.events = event;
     ev.data.fd = fd;
     (flag == 1) ? epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) : epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ev);
@@ -20,9 +20,9 @@ void set_event(int fd, int event, int flag)
 
 int accept_cb(int fd)
 {
-    sockaddr_in clientaddr;
+    struct sockaddr_in clientaddr;
     socklen_t len = sizeof(clientaddr);
-    int clientfd = accept(fd, reinterpret_cast<sockaddr *>(&clientaddr), &len);
+    int clientfd = accept(fd, (struct sockaddr*)&clientaddr, &len);
     if (clientfd < 0)
     {
         return -1;
@@ -48,7 +48,7 @@ int recv_cb(int fd)
     int count = recv(fd, buf, BUFFER_LEN, 0);
     if (count <= 0)
     {
-        epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr);
+        epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
         close(fd);
         return -1;
     }
@@ -76,11 +76,11 @@ int epoll_entry()
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     ERROR_CHECK(sockfd, "socket", -1);
-    sockaddr_in addr;
+    struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(1234);
     addr.sin_addr.s_addr = inet_addr("192.168.20.128");
-    int ret = bind(sockfd, reinterpret_cast<sockaddr *>(&addr), sizeof(addr));
+    int ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(addr));
     ERROR_CHECK(ret, "bind", -1);
     ret = listen(sockfd, 100);
     ERROR_CHECK(ret, "listen", -1);
@@ -88,7 +88,7 @@ int epoll_entry()
     set_event(sockfd, EPOLLIN, 1);
     conlist[sockfd].fd_ = sockfd;
     conlist[sockfd].recv_t.accept_callback = accept_cb;
-    epoll_event event[1024] = {0};
+    struct epoll_event event[1024] = {0};
     while (1)
     {
         int nready = epoll_wait(epfd, event, 1024, -1);

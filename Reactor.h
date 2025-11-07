@@ -4,8 +4,7 @@
 #define BUFFER_LEN 1024
 
 typedef int(*RCALLBACK)(int);
-struct Conn_item
-{
+typedef struct Conn_item {
     int fd_;
     char rbuffer_[BUFFER_LEN];
     int rlen_;
@@ -13,22 +12,22 @@ struct Conn_item
     char wbuffer_[BUFFER_LEN];
     int wlen_;
 
-    union 
-    {
+    union {
         RCALLBACK accept_callback;
         RCALLBACK recv_callback;        
     }recv_t;
     RCALLBACK send_callback;
-};
+} Conn_item;
 
-extern Conn_item conlist[1024];
+// 不要在头文件里定义数组
+// extern Conn_item conlist[1024]; // 声明即可
+
 int accept_cb(int fd);
 int recv_cb(int fd);
 int send_cb(int fd);
 
-//flag   1 --> add      0 --> mod
+// flag: 1 --> add, 0 --> mod
 void set_event(int fd, int event, int flag);
 int epoll_entry();
-
 
 #endif

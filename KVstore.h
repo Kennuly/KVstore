@@ -13,6 +13,15 @@ struct Conn_item;   // ✅ 仅声明，不需要引入 Reactor.h
 
 #define ENABLE_NETWORK_SELECT   NETWORK_NTYCO
 
+
+
+#ifdef ENABLE_LOG
+
+#define LOG(_fmt, ...) fprintf(stdout, "[%s:%d]:%s"_fmt, __FILE__, __LINE__, __VAR_ARGS__)
+#else
+#define LOG(_fmt, ...)
+#endif
+
 int ntyco_entry();
 
 extern const char* commands[];
@@ -36,17 +45,6 @@ void* kvstore_malloc(size_t size);
 void kvstore_free(void *ptr);
 
 
-#define ENABLE_ARRAY_KVENGINE   1
-#if ENABLE_ARRAY_KVENGINE
-struct kvs_array_item
-{
-    char *key;
-    char *value;
-};
-#define KVS_ARRAY_SIZE  1024
-int kvstore_array_set(char* key, char *value);
-char* kvs_array_get(char* key);
 
-#endif
 
 #endif

@@ -41,20 +41,23 @@ int accept_cb(int fd)
 }
 int recv_cb(int fd)
 {
+    
     char *buf = conlist[fd].rbuffer_;
+    memset(buf, 0, BUFFER_LEN);
     int idx = conlist[fd].rlen_;
-    int count = recv(fd, buf + idx, BUFFER_LEN - idx, 0);
+    int count = recv(fd, buf, BUFFER_LEN, 0);
     if (count <= 0)
     {
         epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr);
         close(fd);
         return -1;
     }
-    conlist[fd].rlen_ += count;
+    conlist[fd].rlen_ = count;
 
     /* memcpy(conlist[fd].wbuffer_, conlist[fd].rbuffer_, conlist[fd].rlen_);
     conlist[fd].wlen_ = conlist[fd].rlen_; */
     KVstore_request(&conlist[fd]);
+    conlist[fd].wlen_ = strlen(conlist[fd].wbuffer_);
     
     set_event(fd, EPOLLOUT, 0);
     return count;

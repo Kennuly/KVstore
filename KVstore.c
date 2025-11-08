@@ -70,7 +70,7 @@ int kvstore_parser_protocol(Conn_item *item, char **tokens, int count)
     case KVS_COM_GET:
         // std::cout << "get" << std::endl;
         LOG("GET");
-        char *value = kvs_array_get(tokens[1]);
+        char *value = kvstore_array_get(tokens[1]);
         if (value)
         {
             snprintf(msg, BUFFER_LEN, "%s", value);
@@ -254,6 +254,7 @@ int init_kvengine()
 
 int main()
 {
+    kvstore_array_create(&arr);
     init_kvengine();
 #if (ENABLE_NETWORK_SELECT == NETWORK_EPOLL)
     epoll_entry();

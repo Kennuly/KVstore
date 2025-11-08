@@ -12,6 +12,8 @@ int kvstore_array_set(char* key, char *value);
 char* kvs_array_get(char* key);
 int kvstore_array_del(char* key);
 int kvstore_array_mod(char* key, char *value);
+int kvstore_array_count();
+
 
 void array_table_del(int loca);
 

@@ -28,7 +28,7 @@ int kvstore_array_set(char* key, char *value)
 
     array_table[array_idx].key = kcopy;
     array_table[array_idx].value = vcopy;
-    array_idx++;
+    ++array_idx;
     return 0;
 }
 
@@ -96,4 +96,8 @@ void array_table_del(int loca)
     kvstore_free(array_table[i].key);
     kvstore_free(array_table[i].value);
     --array_idx;
+}
+int kvstore_array_count()
+{
+    return array_idx;
 }

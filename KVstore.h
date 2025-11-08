@@ -28,12 +28,22 @@ extern const char* commands[];
 
 enum
 {
+    //线性表
     KVS_CMD_START = 0,
     KVS_COM_SET = KVS_CMD_START,
     KVS_COM_GET,
     KVS_COM_DEL,
     KVS_COM_MOD,
-    KVS_COM_COUNT
+    KVS_COM_COUNT,
+
+    //红黑树
+    KVS_COM_RSET,
+    KVS_COM_RGET,
+    KVS_COM_RDEL,
+    KVS_COM_RMOD,
+
+    KVS_COM_RCOUNT,
+    KVS_COM_SIZE
 };
 
 int kvstore_parser_protocol(struct Conn_item *item, char** tokens, int count);

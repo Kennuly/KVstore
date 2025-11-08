@@ -2,7 +2,7 @@ CC = gcc
 
 FlAGS = -I ./NtyCo/core/ -L ./NtyCo/ -lntyco
 
-SRCS = KVstore.c Reactor.c KVstore_array.c nty_server.c
+SRCS = KVstore.c Reactor.c KVstore_array.c nty_server.c rbtree.c
 TARGET = main
 
 OBJS = $(SRCS:.c=.o)

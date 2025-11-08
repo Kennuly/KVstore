@@ -91,6 +91,7 @@ void arrar_testcase10W(int fd)
         test_case(fd, "GET Name", "NO EXIST", "GETCase");
     }
 }
+
 void arrar_testcase(int fd)
 {
     test_case(fd, "SET Name King", "SUCCESS", "SETCase");
@@ -100,7 +101,28 @@ void arrar_testcase(int fd)
     test_case(fd, "DEL Name", "SUCCESS", "DELCase");
     test_case(fd, "GET Name", "NO EXIST", "GETCase");
 }
-
+void rbtree_testcase(int fd)
+{
+    test_case(fd, "SET Name King", "SUCCESS", "SETCase");
+    test_case(fd, "GET Name", "King", "GETCase");
+    test_case(fd, "MOD Name Darren", "SUCCESS", "MODCase");
+    test_case(fd, "GET Name", "Darren", "GETCase");
+    test_case(fd, "DEL Name", "SUCCESS", "DELCase");
+    test_case(fd, "GET Name", "NO EXIST", "GETCase");
+}
+void rbtree_testcase10W(int fd)
+{
+    int i = 0, count = 100000;
+    for (i = 0; i < count; i++)
+    {
+        test_case(fd, "RSET Name King", "SUCCESS", "SETCase");
+        test_case(fd, "RGET Name", "King", "GETCase");
+        test_case(fd, "RMOD Name Darren", "SUCCESS", "MODCase");
+        test_case(fd, "RGET Name", "Darren", "GETCase");
+        test_case(fd, "RDEL Name", "SUCCESS", "DELCase");
+        test_case(fd, "RGET Name", "NO EXIST", "GETCase");
+    }
+}
 // ./Taskcase_Client -s 192.168.20.128 -p 1234 -m 1
 int main(int argc, char *argv[])
 {
@@ -109,7 +131,7 @@ int main(int argc, char *argv[])
 
     char ip[16] = {0};
     int port = 0;
-    int mode = 1;
+    int mode = 2;
 
     int opt;
     while ((opt = getopt(argc, argv, "s:p:m:?")) != -1)
@@ -141,6 +163,17 @@ int main(int argc, char *argv[])
         gettimeofday(&tv_begin, nullptr);
         // arrar_testcase(connfd);
         arrar_testcase10W(connfd);
+        struct timeval tv_end;
+        gettimeofday(&tv_end, nullptr);
+        int time_used = TIME_SUB_MS(tv_end, tv_begin);
+        std::cout << "time_used:" << time_used << "qps:" << 1000000 * 1000 / time_used << std::endl;
+    }
+    if (mode & 0x02)
+    {
+        struct timeval tv_begin;
+        gettimeofday(&tv_begin, nullptr);
+        // arrar_testcase(connfd);
+        rbtree_testcase10W(connfd);
         struct timeval tv_end;
         gettimeofday(&tv_end, nullptr);
         int time_used = TIME_SUB_MS(tv_end, tv_begin);

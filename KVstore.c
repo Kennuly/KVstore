@@ -7,8 +7,11 @@
 #include "nty.h"
 #include <stdlib.h>
 #include "KVstore_array.h"
+#include "rbtree.h"
+
 const char *commands[] = {
-    "SET", "GET", "DEL", "MOD"};
+    "SET", "GET", "DEL", "MOD", "COUNT",
+    "RSET", "RGET", "RDEL", "RMOD", "RCOUNT"};
 
 int KVstore_split_token(char *msg, char **tokens)
 {
@@ -38,7 +41,7 @@ int kvstore_parser_protocol(Conn_item *item, char **tokens, int count)
         return -1;
     }
     int cmd;
-    for (cmd = KVS_CMD_START; cmd < KVS_COM_COUNT; cmd++)
+    for (cmd = KVS_CMD_START; cmd < KVS_COM_SIZE; cmd++)
     {
         if (strcmp(commands[cmd], tokens[0]) == 0)
         {
@@ -114,6 +117,95 @@ int kvstore_parser_protocol(Conn_item *item, char **tokens, int count)
             snprintf(msg, BUFFER_LEN, "SUCCESS");
         }
         break;
+    case KVS_COM_COUNT:
+        LOG("COUNT");
+        res = kvstore_array_count();
+        if (res == 0)
+        {
+            snprintf(msg, BUFFER_LEN, "NO EXIST");
+        }
+        else
+        {
+            snprintf(msg, BUFFER_LEN, "%d", res);
+        }
+        break;
+    case KVS_COM_RSET:
+        // printf("rset");
+        LOG("rset");
+        res = kvs_rbtree_set(tokens[1], tokens[2]);
+        if (!res)
+        {
+            snprintf(msg, BUFFER_LEN, "SUCCESS");
+        }
+        else
+        {
+            snprintf(msg, BUFFER_LEN, "FAILED");
+        }
+        break;
+
+    case KVS_COM_RGET:
+        // printf("rget");
+        LOG("rget");
+        char *rvalue = kvs_rbtree_get(tokens[1]);
+        if (rvalue)
+        {
+            snprintf(msg, BUFFER_LEN, "%s", rvalue);
+        }
+        else
+        {
+            snprintf(msg, BUFFER_LEN, "NO EXIST");
+        }
+
+        break;
+
+    case KVS_COM_RDEL:
+        // printf("rdel");
+        LOG("rdel");
+        res = kvs_rbtree_delete(tokens[1]);
+        if (res < 0)
+        {
+            snprintf(msg, BUFFER_LEN, "ERROR");
+        }
+        else if (res == 1)
+        {
+            snprintf(msg, BUFFER_LEN, "NO EXIST");
+        }
+        else
+        {
+            snprintf(msg, BUFFER_LEN, "SUCCESS");
+        }
+        break;
+
+    case KVS_COM_RMOD:
+        // printf("rmod");
+        LOG("rmod");
+        res = kvs_rbtree_modify(tokens[1], tokens[2]);
+        if (res < 0)
+        {
+            snprintf(msg, BUFFER_LEN, "ERROR");
+        }
+        else if (res == 1)
+        {
+            snprintf(msg, BUFFER_LEN, "NO EXIST");
+        }
+        else
+        {
+            snprintf(msg, BUFFER_LEN, "SUCCESS");
+        }
+        break;
+    case KVS_COM_RCOUNT:
+        LOG("RCOUNT");
+        res = kvs_rbtree_count();
+        if (res == 0)
+        {
+            snprintf(msg, BUFFER_LEN, "NO EXIST");
+        }
+        else
+        {
+            snprintf(msg, BUFFER_LEN, "%d", res);
+        }
+        break;
+
     default:
         // std::cout << commands[cmd] << std::endl;
         puts(commands[cmd]);
@@ -149,8 +241,20 @@ void kvstore_free(void *ptr)
     return free(ptr);
 }
 
+int init_kvengine()
+{
+#if ENABLE_ARRAY_KVENGINE
+
+#endif
+
+#if ENABLE_RBTREE_KVENGINE
+    kvstore_rbtree_create(&Tree);
+#endif
+}
+
 int main()
 {
+    init_kvengine();
 #if (ENABLE_NETWORK_SELECT == NETWORK_EPOLL)
     epoll_entry();
 #elif (ENABLE_NETWORK_SELECT == NETWORK_NTYCO)

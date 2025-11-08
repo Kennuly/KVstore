@@ -244,7 +244,7 @@ void kvstore_free(void *ptr)
 int init_kvengine()
 {
 #if ENABLE_ARRAY_KVENGINE
-
+    kvstore_array_create(&arr);
 #endif
 
 #if ENABLE_RBTREE_KVENGINE
@@ -252,9 +252,20 @@ int init_kvengine()
 #endif
 }
 
+int exit_kvengine()
+{
+#if ENABLE_ARRAY_KVENGINE
+    kvstore_array_destory(&arr);
+#endif
+
+#if ENABLE_RBTREE_KVENGINE
+    kvstore_rbtree_destory(&Tree);
+#endif
+}
+
 int main()
 {
-    kvstore_array_create(&arr);
+    
     init_kvengine();
 #if (ENABLE_NETWORK_SELECT == NETWORK_EPOLL)
     epoll_entry();
@@ -264,4 +275,5 @@ int main()
 #elif (ENABLE_NETWORK_SELECT == NETWORK_IOURING)
 
 #endif
+    exit_kvengine();
 }

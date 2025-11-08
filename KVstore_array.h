@@ -14,7 +14,7 @@ typedef struct array_s
 }array_t;
 extern array_t arr;
 int kvstore_array_create(array_t *array);
-int kystore_arrya_destory(array_t *array);
+int kvstore_array_destory(array_t *array);
 
 #define KVS_ARRAY_SIZE  1024
 int array_set(array_t *array, char* key, char *value);

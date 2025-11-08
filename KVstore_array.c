@@ -19,7 +19,7 @@ int kvstore_array_create(array_t* array)
     return 0;
 }
 
-int kvstore_arrya_destory(array_t *array)
+int kvstore_array_destory(array_t *array)
 {
     if(!array)
         return -1;
